@@ -39,11 +39,11 @@ if(D==1)	#Cx & Length set for 1D system
   printf ("For element %u ", i)
   do	#safety feature
    s=input("enter 1 for Cartesian coordinates or 2 for Length");	#Choice between Coordinates or Length
-  until (s==1 || s==2 || s==3)
+  until (s==1 || s==2)
   if (s==1) #Coordinate Entry
    x1=input("x in 1st node= ");	#1st node coordinate x
-   x2=input("x in 2nd node= "); #2nd node coordinate x
-   L(i)=((x2-x1)^2)^.5	#Length calculation from coordinates
+   x2=input("x in 2nd node= ");	#2nd node coordinate x
+   L(i)=((x2-x1)^2)^.5;	#Length calculation from coordinates
   elseif (s==2)	#Length and Angle Entry
    L(i)=input("Length = ");
   endif
@@ -55,13 +55,13 @@ if(D==1)	#Cx & Length set for 1D system
   printf ("For element %u ", i)
   do	#safety feature
    s=input("enter 1 for Cartesian coordinates or 2 for Length and angles= ");	#Choice between Coordinates or Length & angles
-  until (s==1 || s==2 || s==3)
+  until (s==1 || s==2)
   if (s==1) #Coordinate Entry
    x1=input("x in 1st node= ");	#1st node coordinate x
    y1=input("y in 1st node= ");	#1st node coordinate y
    x2=input("x in 2nd node= "); #2nd node coordinate x
    y2=input("y in 2nd node= "); #2nd node coordinate y
-   L(i)=((x2-x1)^2+(y2-y1)^2)^.5	#Length calculation from coordinates
+   L(i)=((x2-x1)^2+(y2-y1)^2)^.5;	#Length calculation from coordinates
    Cx(i)=(x2-x1)/L(i);	#cos x
    Cy(i)=(y2-y1)/L(i);	#cos y
   elseif (s==2)	#Length and Angle Entry
@@ -78,15 +78,15 @@ else  #Cx, Cy, Cz set for 3D system
   printf ("For element %u ", i)
   do	#safety feature
    s=input("enter 1 for Cartesian coordinates or 2 for Length and angles= ");	#Choice between Coordinates or Length & angles
-  until (s==1 || s==2 || s==3)
+  until (s==1 || s==2)
   if (s==1) #Coordinate Entry
    x1=input("x in 1st node= ");	#1st node coordinate x
    y1=input("y in 1st node= ");	#1st node coordinate y
    z1=input("z in 1st node= ");	#1st node coordinate z
-   x2=input("x in 2nd node= "); #2nd node coordinate x
-   y2=input("y in 2nd node= "); #2nd node coordinate y
-   z2=input("z in 2nd node= "); #2nd node coordinate z
-   L(i)=((x2-x1)^2+(y2-y1)^2+(z2-z1)^2)^.5	#Length calculation from coordinates
+   x2=input("x in 2nd node= ");	#2nd node coordinate x
+   y2=input("y in 2nd node= ");	#2nd node coordinate y
+   z2=input("z in 2nd node= ");	#2nd node coordinate z
+   L(i)=((x2-x1)^2+(y2-y1)^2+(z2-z1)^2)^.5;	#Length calculation from coordinates
    Cx(i)=(x2-x1)/L(i);	#cos x
    Cy(i)=(y2-y1)/L(i);	#cos y
    Cz(i)=(z2-z1)/L(i);	#cos z
@@ -99,7 +99,7 @@ else  #Cx, Cy, Cz set for 3D system
     Cx(i)=cosd(thx);
     Cy(i)=cosd(thy);
     Cz(i)=cosd(thz);
-    l=(Cx(i)^2+Cy(i)^2+Cz(i)^2)^.5; 
+    l=(Cx(i)^2+Cy(i)^2+Cz(i)^2)^.5;
     if(l!=1)	#Error output if 'l' is not equal to 1
      printf("Error! Please enter angles again\n");
 	endif
@@ -240,10 +240,7 @@ d=zeros(N*D,1);
 d1=inv(K1)*F1;
 d([n2],:)=d1;
 
-
-
 F=K*d
-
 
 i=transpose(linspace(1, N*D-D+1, N));
 j=transpose(linspace(2, N*D-D+2, N));
@@ -251,17 +248,21 @@ k3=transpose(linspace(2, N*D-D+3, N));
 if(D>=1)
 m=d(i);
 save Dx.txt m
+m=F(i);
+save Fx.txt m
 endif
 if(D>=2)
-m=d(j)
+m=d(j);
 save Dy.txt m
+m=F(j);
+save Fy.txt m
 endif
 if(D==3)
-m=d(k3)
+m=d(k3);
 save Dz.txt m
+m=F(k3);
+save Fz.txt m
 endif
-
-
 
 for i=1:E
  if(D==1)
@@ -272,6 +273,8 @@ for i=1:E
   stress(i) =E1(i)/L(i)*[-Cx(i),-Cy(i), -Cz(i), Cx(i), Cy(i), Cz(i)]*d([e(i,1)*D-2:e(i,1)*D,e(i,2)*D-2:e(i,2)*D]);
  endif
 endfor
+
+save stress.txt stress
 
 for i=1:E
  printf("Stress of element %u ", i);
