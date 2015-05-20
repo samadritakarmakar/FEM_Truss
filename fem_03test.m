@@ -124,24 +124,29 @@ for i=1:E
  b=e(i,1)*D; #End Row/Column Value 1
  a1=e(i,2)*D-D+1;	#Initial Row/Column value 2
  b1=e(i,2)*D;	#End Row/Column Value 2
- k1(a:b,a:b)=lamda;
+ k1(a:b,a:b)=lamda;	#Building local stiffness matrix
  k1(a1:b1,a1:b1)=lamda;
  k1(a:b,a1:b1)=-lamda;
  k1(a1:b1,a:b)=-lamda;
- k1=k(i)*k1;
- K=K+k1;
- k2(:,:,i)=k1;
+ k1=k(i)*k1;	#Multiplying to stiffness of element
+ K=K+k1;	#Adding local stiffness matrix to global stiffness matrix
+ k2(:,:,i)=k1;	#keeps track of local stiffness matrix for each element (unused code)
 endfor
 
-K1=K;
-N1=zeros(N,1);
+K1=K;	#Storing Values of K in K1 for future use
+N1=zeros(N,1);	#Stores values of Node numbers with restraints later on
+F2=zeros(N*D,1);	#Calculates forces resulting from displacement later on
+disp=zeros(N*D,1);	#Stores dispalcements later on
 
 i1=input("Enter the number of nodes with restraints= ")
-n1=zeros(i1*D,1);
+n1=zeros(i1*D,1);	#keeps track of Column numbers with restraints
+
 if(D==1)
  for i=1:i1
   printf("Enter the restraint node number %u =", i);
   n1(i)=input("");
+  disp(n1(i))=input("Displacement = ");
+  F2=F2-K(:,n1(i))*disp(n1(i));
   endfor
   K1([n1],:)=[];
   K1(:,[n1])=[];
@@ -153,10 +158,14 @@ if(D==2)
   cx=input("Is it restrainted x direction?(y/n) ","s");
   if(cx=="y")
    n1(i*D-1)=N1(i)*D-1;
+   disp(N1(i)*D-1)=input("Displacement = ");
+   F2=F2-K(:,N1(i)*D-1)*disp(N1(i)*D-1);
   endif
   cy=input("Is it restrainted y direction?(y/n) ","s");
   if(cy=="y")
    n1(i*D)=N1(i)*D;
+   disp(N1(i)*D)=input("Displacement = ");
+   F2=F2-K(:,N1(i)*D)*disp(N1(i)*D);
   endif
  endfor
  n1(~any(n1,2),:)=[];
@@ -170,14 +179,20 @@ if(D==3)
   cx=input("Is it restrainted x direction?(y/n) ","s");
   if(cx=="y")
    n1(i*D-2)=N1(i)*D-2;
+   disp(N1(i)*D-2)=input("Displacement = ");
+   F2=F2-K(:,N1(i)*D-2)*disp(N1(i)*D-2);
   endif
   cy=input("Is it restrainted y direction?(y/n) ","s");
   if(cy=="y")
     n1(i*D-1)=N1(i)*D-1;
+    disp(N1(i)*D-1)=input("Displacement = ");
+    F2=F2-K(:,N1(i)*D-1)*disp(N1(i)*D-1);
   endif
   cz=input("Is it restrainted z direction?(y/n) ","s");
   if(cz=="y")
    n1(i*D)=N1(i)*D;
+   disp(N1(i)*D)=input("Displacement = ");
+   F2=F2-K(:,N1(i)*D)*disp(N1(i)*D);
   endif
  endfor
  n1(~any(n1,2),:)=[];
@@ -234,11 +249,13 @@ if(D==3)
  endfor
 endif
 F1=F;
+F1=F1+F2;
 F1([n1],:)=[];
 n2([n1],:)=[];
 d=zeros(N*D,1);
 d1=inv(K1)*F1;
 d([n2],:)=d1;
+d([n1],:)=disp([n1],:);
 
 F=K*d
 
